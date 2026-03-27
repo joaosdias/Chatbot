@@ -1,12 +1,12 @@
 require('dotenv').config();
 const qrcode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const { OpenAI } = require('openai'); //biblioteca openai
+const { OpenAI } = require('openai'); 
 
-// 1. Configuração do Cerebras
+// configuração do cerebras
 const cerebras = new OpenAI({
-    apiKey: process.env.CEREBRAS_API_KEY, // Substitua pela chave que você copiou
-    baseURL: 'https://api.cerebras.ai/v1' // O segredo: aponta para o servidor do Cerebras
+    apiKey: process.env.CEREBRAS_API_KEY, 
+    baseURL: 'https://api.cerebras.ai/v1' // aponta para o servidor do Cerebras
 });
 
 //conectando ao whatsapp web e mantendo
@@ -14,10 +14,10 @@ const client = new Client({
     authStrategy: new LocalAuth()
 });
 
-// 🕒 Trava de tempo: ignora o que veio antes de ligar o bot
+// Trava de tempo: ignora o que veio antes de ligar o bot
 const botStartTime = Math.floor(Date.now() / 1000);
 
-// ⏳ Função de delay (TEM QUE ESTAR AQUI FORA)
+// Função de delay 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 //qr code e verificacao de funcionamento
@@ -42,13 +42,13 @@ client.on('message_create', async message => {
 
         console.log(`📩 Mensagem de ${message.from}: ${message.body}`);
       
-        // 1. Marca como lida (Check azul)
+        // Marca como lida (Check azul)
         await chat.sendSeen(); 
 
-        // 2. Simula tempo de "leitura" (2 segundos)
+        // Simula tempo de "leitura" (2 segundos)
         await sleep(2000); 
         
-        // 3. Mostra "digitando..."
+        // Mostra "digitando..."
         await chat.sendStateTyping();
 
         const completion = await cerebras.chat.completions.create({
@@ -84,7 +84,6 @@ client.on('message_create', async message => {
 
     } catch (error) {
         console.error('Erro Cerebras:', error);
-        // Opcional: avisar que deu erro ou ficar em silêncio
     }
 
 });
