@@ -1,0 +1,4 @@
+/chat/.wwebjs_auth
+/chat/.wwebjs_cache
+.env
+node_modules/
