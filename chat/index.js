@@ -14,33 +14,47 @@ const client = new Client({
     authStrategy: new LocalAuth()
 });
 
+// 🕒 Trava de tempo: ignora o que veio antes de ligar o bot
+const botStartTime = Math.floor(Date.now() / 1000);
+
+// ⏳ Função de delay (TEM QUE ESTAR AQUI FORA)
+const sleep = ms => new Promise(res => setTimeout(res, ms));
+
 client.on('ready', () => {
     console.log('Client is ready!');
 });
 
-//gerar qr code
+//qr code e verificacao de funcionamento
 client.on('qr', qr => {
     qrcode.generate(qr, { small: true });
 });
+client.on('ready', () => {
+    console.log('Client is ready!');
+});
 
-const delay = ms => new Promise(res => setTimeout(res, ms));
 
 client.on('message_create', async message => {
-   // 🛑 TRAVA 1: Ignora mensagens enviadas por VOCÊ (evita loop)
+    // 🛑 TRAVA 1: Ignora mensagens enviadas ANTES do bot ligar
+    // O WhatsApp usa segundos, por isso dividimos o Date.now() por 1000
+    if (message.timestamp < botStartTime) return;
+    // 🛑 TRAVA 1: Ignora mensagens enviadas por VOCÊ (evita loop)
     if (message.fromMe) return;
-
     // 🛑 TRAVA 2: Ignora grupos (O bot só responde no privado)
     // Se o ID da mensagem contiver "@g.us", é grupo.
     if (message.from.includes('@g.us')) return;
-
     // 🛑 TRAVA 3: Ignora mensagens de sistema/broadcast (Listas de transmissão)
     if (message.isStatus || message.from === 'status@broadcast') return;
 
-    const msg = message.body.toLowerCase();
+    
 
     try {
+        console.log(message.body())
         // Mostra "digitando..." no WhatsApp para ficar natural
         const chat = await message.getChat();
+        const msg = message.body.toLowerCase();
+        await sleep(9000); 
+        await chat.sendStateTyping();
+        await chat.sendSeen(); // Marca como "check azul"
         // 🛑 TRAVA 4: Verificação extra para garantir que não é grupo
         if (chat.isGroup) return;
 
@@ -71,7 +85,9 @@ client.on('message_create', async message => {
 
         const respostaIA = completion.choices[0].message.content;
 
-        await delay(10000);
+        const tempoEscrita = Math.min(respostaIA.length * 50, 5000); // No máximo 5 segundos
+        await sleep(tempoEscrita);
+
         await client.sendMessage(message.from, respostaIA);
 
     } catch (error) {
