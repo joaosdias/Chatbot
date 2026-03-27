@@ -20,10 +20,6 @@ const botStartTime = Math.floor(Date.now() / 1000);
 // ⏳ Função de delay (TEM QUE ESTAR AQUI FORA)
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-client.on('ready', () => {
-    console.log('Client is ready!');
-});
-
 //qr code e verificacao de funcionamento
 client.on('qr', qr => {
     qrcode.generate(qr, { small: true });
@@ -32,32 +28,27 @@ client.on('ready', () => {
     console.log('Client is ready!');
 });
 
-
 client.on('message_create', async message => {
-    // 🛑 TRAVA 1: Ignora mensagens enviadas ANTES do bot ligar
-    // O WhatsApp usa segundos, por isso dividimos o Date.now() por 1000
+    //verificacoes de seguranca: mensagem enviada antes de bot online, de mim mesmo, de grupos e status.
     if (message.timestamp < botStartTime) return;
-    // 🛑 TRAVA 1: Ignora mensagens enviadas por VOCÊ (evita loop)
     if (message.fromMe) return;
-    // 🛑 TRAVA 2: Ignora grupos (O bot só responde no privado)
-    // Se o ID da mensagem contiver "@g.us", é grupo.
     if (message.from.includes('@g.us')) return;
-    // 🛑 TRAVA 3: Ignora mensagens de sistema/broadcast (Listas de transmissão)
     if (message.isStatus || message.from === 'status@broadcast') return;
 
-    
-
     try {
-        console.log(message.body())
-        // Mostra "digitando..." no WhatsApp para ficar natural
         const chat = await message.getChat();
-        const msg = message.body.toLowerCase();
-        await sleep(9000); 
-        await chat.sendStateTyping();
-        await chat.sendSeen(); // Marca como "check azul"
-        // 🛑 TRAVA 4: Verificação extra para garantir que não é grupo
+        //verificacao extra grupo
         if (chat.isGroup) return;
 
+        console.log(`📩 Mensagem de ${message.from}: ${message.body}`);
+      
+        // 1. Marca como lida (Check azul)
+        await chat.sendSeen(); 
+
+        // 2. Simula tempo de "leitura" (2 segundos)
+        await sleep(2000); 
+        
+        // 3. Mostra "digitando..."
         await chat.sendStateTyping();
 
         const completion = await cerebras.chat.completions.create({
@@ -88,6 +79,7 @@ client.on('message_create', async message => {
         const tempoEscrita = Math.min(respostaIA.length * 50, 5000); // No máximo 5 segundos
         await sleep(tempoEscrita);
 
+        //resposta
         await client.sendMessage(message.from, respostaIA);
 
     } catch (error) {
