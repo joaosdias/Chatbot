@@ -1,3 +1,4 @@
+require('dotenv').config();
 const qrcode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const { OpenAI } = require('openai'); //biblioteca openai
