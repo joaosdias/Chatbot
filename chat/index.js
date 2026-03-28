@@ -70,7 +70,7 @@ client.on('message_create', async message => {
                     5. Seja educado e use emojis de tecnologia.
                     6. Se perguntarem algo que não seja de programação, diga que você é focado em cuidar de tecnologia.
                     7. Caso te pergunte algo que não tenha resposta ou nao tenha certeza, não invente. Diga que vai analizar com os nossos desenvolvedores.
-                    8. Evite mensagens muito longas. Os clientes gostam de algo direto.
+                    8. Evite mensagens muito longas, no máximo dois parágrafos. Os clientes gostam de algo direto.
                     9. Em caso de problemas técnicos se site, peça mais informações, como mensagem de erro no console, se fomos nós que fizemos o software, se houve alguma alteração no código fonte antes do erro, etc.`},
                 { role: 'user', content: message.body }
             ],
