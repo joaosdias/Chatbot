@@ -14,7 +14,7 @@ const client = new Client({
     authStrategy: new LocalAuth()
 });
 
-// Trava de tempo: ignora o que veio antes de ligar o bot
+// ignora o que veio antes de ligar o bot
 const botStartTime = Math.floor(Date.now() / 1000);
 
 // Função de delay 
